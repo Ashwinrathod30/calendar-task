@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/calendar-task/',
   build: {
-    outDir: 'docs',
+    outDir: 'dist',
   },
   esbuild: {
     loader: "jsx",
