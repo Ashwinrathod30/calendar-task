@@ -1,7 +1,10 @@
-import { meetings, classes } from '../data/dummyData';
+import { classes } from '../data/dummyData';
 import { exportToExcel } from '../utils/excelExport';
+import { useMeetings } from '../context/MeetingsContext';
 
 const Overview = () => {
+  const { meetings } = useMeetings();
+  
   const getClassStats = (className) => {
     const classMeetings = meetings.filter(m => m.class_name === className);
 
@@ -32,7 +35,7 @@ const Overview = () => {
         <button
           onClick={() => {
             try {
-              const success = exportToExcel();
+              const success = exportToExcel(meetings);
               if (success) {
                 alert('Excel file exported successfully!');
               } else {

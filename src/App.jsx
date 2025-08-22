@@ -1,9 +1,10 @@
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useState } from 'react';
 import Calendar from './components/Calendar';
 import Overview from './pages/Overview';
 import { ThemeProvider } from './components/ui/theme-provider';
 import { ModeToggle } from './components/ui/mode-toggle';
+import { MeetingsProvider } from './context/MeetingsContext';
 import './styles/globals.css';
 
 function App() {
@@ -21,9 +22,10 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <Router>
-        <div className="min-h-screen bg-background">
-          <nav className="border-b mb-4">
+      <MeetingsProvider>
+        <Router basename="/calendar-task">
+          <div className="min-h-screen bg-background">
+            <nav className="border-b mb-4">
             <div className="container mx-auto px-4 py-3">
               <div className="flex justify-between items-center">
                 <h1 className="text-xl font-bold">Meeting Scheduler</h1>
@@ -59,7 +61,8 @@ function App() {
             </Routes>
           </main>
         </div>
-      </Router>
+        </Router>
+      </MeetingsProvider>
     </ThemeProvider>
   );
 }

@@ -10,7 +10,8 @@ import {
   isSameDay 
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { meetings, studentData } from "../data/dummyData";
+import { studentData } from "../data/dummyData";
+import { useMeetings } from "../context/MeetingsContext";
 import { cn } from "../utils/cn";
 import MeetingDialog from "./MeetingDialog";
 
@@ -21,13 +22,7 @@ function Calendar({ onDateSelect }) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [selectedMeetingDate, setSelectedMeetingDate] = React.useState(null);
   const [editingMeeting, setEditingMeeting] = React.useState(null);
-  const [localMeetings, setLocalMeetings] = React.useState([]);
-  const [scheduledStudents, setScheduledStudents] = React.useState([]);
-
-  // Initialize meetings from dummyData
-  React.useEffect(() => {
-    setLocalMeetings(meetings);
-  }, []);
+  const { meetings, addMeetings, scheduledStudents, updateScheduledStudents } = useMeetings();
 
   const monthStart = startOfMonth(selectedDate);
   const monthEnd = endOfMonth(selectedDate);
@@ -89,8 +84,8 @@ function Calendar({ onDateSelect }) {
           }
         }
 
-        setLocalMeetings(prev => [...prev, ...newMeetings]);
-        setScheduledStudents(prev => [...prev, ...Array.from(newlyScheduledStudents)]);
+        addMeetings(newMeetings);
+        updateScheduledStudents(Array.from(newlyScheduledStudents));
       }
     }
     
@@ -98,10 +93,10 @@ function Calendar({ onDateSelect }) {
   };
 
   const getMeetingsForDate = React.useCallback((date) => {
-    return localMeetings.filter(meeting => 
+    return meetings.filter(meeting => 
       meeting.date === format(date, 'yyyy-MM-dd')
     );
-  }, [localMeetings]);
+  }, [meetings]);
 
   const handleEditMeeting = (meeting) => {
     setEditingMeeting(meeting);
@@ -118,22 +113,19 @@ function Calendar({ onDateSelect }) {
   const handleSaveMeeting = (meetingData) => {
     if (editingMeeting) {
       // Update existing meeting
-      setLocalMeetings(prev =>
-        prev.map(meeting =>
-          meeting.id === editingMeeting.id ? { ...meeting, ...meetingData } : meeting
-        )
-      );
+      addMeetings([{
+        ...editingMeeting,
+        ...meetingData,
+        date: format(selectedMeetingDate, 'yyyy-MM-dd')
+      }]);
     } else {
       // Add new meeting
-      setLocalMeetings(prev => [
-        ...prev,
-        {
-          id: Date.now(),
-          ...meetingData,
-          date: format(selectedMeetingDate, 'yyyy-MM-dd'),
-          status: "Scheduled"
-        }
-      ]);
+      addMeetings([{
+        id: Date.now(),
+        ...meetingData,
+        date: format(selectedMeetingDate, 'yyyy-MM-dd'),
+        status: "Scheduled"
+      }]);
     }
     setIsDialogOpen(false);
     setEditingMeeting(null);
